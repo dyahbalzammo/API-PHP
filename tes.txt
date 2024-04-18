@@ -1,1 +1,52 @@
-Tes
+Codingan dibawah adalah untuk mengkoneksikan database MySql, namun bagaimana jika saya ingin mengkoneksikan database postgresql? saya mencoba konek database postgresql menggunakan extensi vscode dengan string = postgresql://user_owner:Gtjhu7Jui@ep-delicate-heart-seu8jie.us-east-2.aws.neon.tech/api_employee?sslmode=require dan hasilnya sukses
+
+<?php
+class Database
+{
+    public $db;
+    public function getConnection()
+    {
+        $this->db = null;
+        try {
+            $this->db = new mysqli('localhost', 'root', '', 'apicruddb');
+        } catch (Exception $e) {
+            echo "Database could not be connected: " . $e->getMessage();
+        }
+        return $this->db;
+    }
+}
+?>
+
+
+codingan dibawah jika saya menggunakan PDO bagaimana?
+
+<?php
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+include_once '/workspace/API-PHP/database.php';
+include_once '/workspace/API-PHP/employees.php';
+$database = new Database();
+
+$db = $database->getConnection();
+$items = new Employee($db);
+$records = $items->getEmployees();
+var_dump($records);
+
+$itemCount = $records->num_rows;
+echo json_encode($itemCount);
+if ($itemCount > 0) {
+    $employeeArr = array();
+    $employeeArr["body"] = array();
+    $employeeArr["itemCount"] = $itemCount;
+    while ($row = $records->fetch_assoc()) {
+        array_push($employeeArr["body"], $row);
+    }
+    echo json_encode($employeeArr);
+} else {
+    http_response_code(404);
+    echo json_encode(
+        array("message" => "No record found.")
+    );
+}
+
+?>
